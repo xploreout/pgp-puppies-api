@@ -18,69 +18,104 @@ public class PuppiesController : ControllerBase
     [HttpGet]
     public ICollection<Puppy> GetPuppies()
     {
-        var puppies = _context.Puppy.ToList();
-        return puppies;
+        try
+        {
+            var puppies = _context.Puppy.ToList();
+            return puppies;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
     
     [HttpGet]
     [Route("{id:int}")]
     public IActionResult GetPuppy(int id)
     {
-        var puppy = _context.Puppy.FirstOrDefault(p=> p.Id == id);
-        if (puppy == null)
+        try
         {
-            return BadRequest($"Puppy with id '{id}' not found");
-        }
+            var puppy = _context.Puppy.FirstOrDefault(p=> p.Id == id);
+            if (puppy == null)
+            {
+                return BadRequest($"Puppy with id '{id}' not found");
+            }
         
-        return Ok(puppy);
+            return Ok(puppy);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
     [HttpDelete]
     [Route("{id:int}")]
     public async Task<IActionResult> DeletePuppy(int id)
     {
-        var puppy = _context.Puppy.FirstOrDefault(p=> p.Id == id);
-        if (puppy == null)
+        try
         {
-            return BadRequest($"Puppy with id '{id}' not found");
-        }
+            var puppy = _context.Puppy.FirstOrDefault(p=> p.Id == id);
+            if (puppy == null)
+            {
+                return BadRequest($"Puppy with id '{id}' not found");
+            }
 
-        _context.Puppy.Remove(puppy);
-        await _context.SaveChangesAsync();
-        return NoContent();
+            _context.Puppy.Remove(puppy);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 
     [HttpPost]
     public async Task<IActionResult> AddPuppy([FromBody] PuppyDto puppyDto)
     {
-        var puppy = new Puppy
+        try
         {
-            Name = puppyDto.Name,
-            Breed = puppyDto.Breed,
-            BirthDate = puppyDto.BirthDate
-        };
+            var puppy = new Puppy
+            {
+                Name = puppyDto.Name,
+                Breed = puppyDto.Breed,
+                BirthDate = puppyDto.BirthDate
+            };
         
-        _context.Puppy.Add(puppy);
-         await _context.SaveChangesAsync();
+            _context.Puppy.Add(puppy);
+            await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetPuppy), new { Id = puppy.Id }, puppy);
+            return CreatedAtAction(nameof(GetPuppy), new { Id = puppy.Id }, puppy);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 
     [HttpPut]
     [Route("{id}")]
     public async Task<IActionResult> UpdatePuppy([FromRoute] int id, [FromBody] PuppyDto puppyDto)
     {
-        var puppy = await _context.Puppy.FindAsync(id);
-        if (puppy ==  null)
+        try
         {
-            return BadRequest($"Puppy with id '{id}' not found.");
+            var puppy = await _context.Puppy.FindAsync(id);
+            if (puppy ==  null)
+            {
+                return BadRequest($"Puppy with id '{id}' not found.");
+            }
+
+            puppy.Name = puppyDto.Name;
+            puppy.Breed = puppyDto.Breed;
+            puppy.BirthDate = puppyDto.BirthDate;
+
+            await _context.SaveChangesAsync();
+            return Ok(puppy);
         }
-
-        puppy.Name = puppyDto.Name;
-        puppy.Breed = puppyDto.Breed;
-        puppy.BirthDate = puppyDto.BirthDate;
-
-        await _context.SaveChangesAsync();
-        return Ok(puppy);
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
     
 }

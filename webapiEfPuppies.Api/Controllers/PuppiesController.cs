@@ -65,5 +65,26 @@ public class PuppiesController : ControllerBase
         return CreatedAtAction(nameof(GetPuppy), new { Id = puppy.Id }, puppy);
     }
 
+    [HttpPut]
+    [Route("{id}")]
+    public async Task<IActionResult> UpdatePuppy([FromRoute] int id, [FromBody] PuppyDto puppyDto)
+    {
+        var puppy = await _context.Puppy.FindAsync(id);
+        if (puppy ==  null)
+        {
+            return BadRequest($"Puppy with id '{id}' not found.");
+        }
+
+        puppy.Name = puppyDto.Name;
+        puppy.Breed = puppyDto.Breed;
+        puppy.BirthDate = puppyDto.BirthDate;
+
+        await _context.SaveChangesAsync();
+        return Ok(puppy);
+    }
+    
 }
+
+
+
 
